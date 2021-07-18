@@ -29,6 +29,9 @@
   },
   "homepage": "https://github.com/Yaojian/book-crawler#readme",
   "dependencies": {
+    "axios": "^0.21.1",
+    "cheerio": "^1.0.0-rc.10",
+    "jsdom": "^16.6.0"
   },
   "devDependencies": {
     "@swc/cli": "^0.1.46",
@@ -36,6 +39,7 @@
     "@swc/helpers": "^0.2.12",
     "@swc/jest": "^0.1.4",
     "@types/jest": "^26.0.24",
+    "@types/jsdom": "^16.2.13",
     "@types/node": "^16.3.3",
     "@types/shelljs": "^0.8.9",
     "eslint": "^7.31.0",
