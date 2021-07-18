@@ -1,0 +1,51 @@
+{
+  "name": "book-crawler",
+  "version": "1.0.0",
+  "description": "A book crawler",
+  "main": "dist/index.js",
+  "scripts": {
+    "tsc-compile": "tsc --build",
+    "swc-compile": "swc src -d dist",
+    "clean": "shx rm -rf dist",
+    "format": "prettier --write .",
+    "lint": "eslint src",
+    "compile": "swc src -d dist",
+    "post-compile": "",
+    "launch": "node dist/index.js",
+    "build": "run-s clean swc-compile",
+    "start": "run-s clean swc-compile launch",
+    "watch": "",
+    "test": "jest --runInBand",
+    "dev-setup": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yaojian/book-crawler.git"
+  },
+  "author": "Yaojian",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Yaojian/book-crawler/issues"
+  },
+  "homepage": "https://github.com/Yaojian/book-crawler#readme",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@swc/cli": "^0.1.46",
+    "@swc/core": "^1.2.65",
+    "@swc/helpers": "^0.2.12",
+    "@swc/jest": "^0.1.4",
+    "@types/jest": "^26.0.24",
+    "@types/node": "^16.3.3",
+    "@types/shelljs": "^0.8.9",
+    "eslint": "^7.31.0",
+    "eslint-plugin-import": "^2.23.4",
+    "jest": "^27.0.6",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.3.2",
+    "shelljs": "^0.8.4",
+    "shx": "^0.3.3",
+    "ts-jest": "^27.0.3",
+    "typescript": "^4.3.5"
+  }
+}
