@@ -1,7 +1,11 @@
-import { processDoubanSite } from "./douban/douban";
+import { crawlDoubanSite } from "./douban/douban";
+import * as fs from "fs";
+import { jsonOutputPath } from "./common";
 
-async function main() {
-  await processDoubanSite();
+async function crawl() {
+  const bookInfos = await crawlDoubanSite();
+  const json = JSON.stringify(bookInfos);
+  fs.writeFileSync(jsonOutputPath, json, { encoding: "utf-8" });
 }
 
-main().catch((err) => console.log(err));
+crawl().catch((err) => console.log(err));
