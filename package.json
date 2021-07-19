@@ -16,7 +16,7 @@
     "start": "run-s clean swc-compile launch",
     "watch": "",
     "test": "jest --runInBand",
-    "dev-setup": ""
+    "to-xl": "node dist/xl-transform-books.js"
   },
   "repository": {
     "type": "git",
@@ -31,6 +31,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "cheerio": "^1.0.0-rc.10",
+    "exceljs": "^4.2.1",
     "jsdom": "^16.6.0"
   },
   "devDependencies": {

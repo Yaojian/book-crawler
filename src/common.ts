@@ -12,4 +12,4 @@ export interface IBook extends IBookInfo {
 }
 
 export const jsonOutputPath = path.join(process.cwd(), "/books.json");
-export const xlsOutputPath = path.join(process.cwd(), "/books.xls");
+export const xlOutputPath = path.join(process.cwd(), "/books.xlsx");
