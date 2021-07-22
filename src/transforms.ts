@@ -15,9 +15,10 @@ export async function xlWriteBooks(books: IBook[], fileName: string) {
     row.getCell(2).value = book.title;
     row.getCell(3).value = book.rating;
     row.getCell(4).value = book.url;
+    row.getCell(5).value = book.category;
 
-    row.getCell(5).value = book.props?.join("\r\n");
-    row.getCell(5).alignment = { wrapText: true };
+    row.getCell(6).value = book.props?.join("\r\n");
+    row.getCell(6).alignment = { wrapText: true };
   }
 
   await xlWorkbook.xlsx.writeFile(fileName);

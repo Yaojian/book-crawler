@@ -5,6 +5,7 @@ export interface IBookInfo {
   title: string;
   rating?: string;
   props?: string[];
+  category?: string;
 }
 
 export interface IBook extends IBookInfo {
