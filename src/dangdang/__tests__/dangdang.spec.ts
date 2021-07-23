@@ -56,16 +56,28 @@ describe("dangdang", () => {
     expect(nextListUrl).toBe(encodeURI("http://category.dangdang.com/pg2-cp01.38.07.00.00.00.html"));
   });
 
-  it("isbn", () => {
+  describe("ISBN", () => {
     const reg = /\d{9,}/g;
-    const text = "国际标准书号ISBN：9787502571832所属分类：图书>传记>女性人物";
 
-    const regResult = reg.exec(text);
-    expect(regResult).toBeTruthy();
+    it("isbn-1", () => {
+      const text = "国际标准书号ISBN：9787502571832所属分类：图书>传记>女性人物";
 
-    if (regResult) {
-      expect(regResult[0]).toBe("9787502571832");
-    }
+      const regResult = reg.exec(text);
+      expect(regResult).toBeTruthy();
+
+      if (regResult) {
+        expect(regResult[0]).toBe("9787502571832");
+      }
+    });
+    it("isbn-2", () => {
+      const text =
+        "\n  开 本：16开纸 张：轻型纸包 装：精装是否套装：否国际标准书号ISBN：9787535491725丛书名：一世珍藏名人名传精品典藏所属分类：图书>传记>科学家>数理科学 ";
+
+      const match = text.match(reg);
+      // console.log(match);
+      expect(Array.isArray(match)).toBe(true);
+      if (match) expect(match[0]).toBe("9787535491725");
+    });
   });
 
   it("book-30877190", () => {

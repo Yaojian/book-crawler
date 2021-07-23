@@ -157,7 +157,7 @@ export async function crawlBooks(bookUrlInfos: IBookUrlInfo[]): Promise<IBook[]>
         throw new Error(`Error response status ${res.status} for ${url}.`);
       }
       const info = parseBookHtml(res.data);
-      const book = { ...info, url };
+      const book = { ...info, url, category: bookUrlInfos[i].category.category };
       books.push(book);
     } catch (e) {
       console.log(e);
