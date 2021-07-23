@@ -110,7 +110,7 @@ export function parseBookPage(html: string | Buffer): IBookInfo {
   const infoText = $(configs.selectors.detailPage.info).text();
   const props = [infoText];
 
-  const isbnMatch = isbnReg.exec(infoText);
+  const isbnMatch = infoText.match(isbnReg);
   const isbn = Array.isArray(isbnMatch) && isbnMatch.length > 0 ? isbnMatch[0] : "";
 
   return { title, rating, isbn, props };

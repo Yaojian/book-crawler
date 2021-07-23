@@ -88,23 +88,25 @@ export async function xlWriteBooks(books: IBook[], fileName: string, opts?: Pick
   const xlSheet = xlWorkbook.addWorksheet("books");
 
   const c = new SamplingCounter(opts?.sampling);
-  for (let i = 1; i <= books.length; i++) {
+  for (let i = 0; i < books.length; i++) {
     const book = books[i];
-    if (!book) continue;
+    console.log(`processing book:`, book);
+    if (!book.isbn) console.log(`book [${i}] without isbn:`, book);
 
-    const row = xlSheet.getRow(i);
+    const row = xlSheet.getRow(i + 1);
 
-    row.getCell(1).value = book.isbn;
-    row.getCell(2).value = book.title;
-    row.getCell(3).value = book.rating;
-    row.getCell(4).value = book.url;
-    row.getCell(5).value = book.category;
+    row.getCell(1).value = book.isbn ?? "";
+    row.getCell(2).value = book.title ?? "";
+    row.getCell(3).value = book.rating ?? "";
+    row.getCell(4).value = book.url ?? "";
+    row.getCell(5).value = book.category ?? "";
+    row.getCell(6).value = book.props?.join(",") ?? "";
 
-    row.getCell(6).value = book.props?.join("\r\n");
-    row.getCell(6).alignment = { wrapText: true };
+    row.commit();
 
     if (c.enough()) break;
   }
+  // xlSheet.commit();
 
   await xlWorkbook.xlsx.writeFile(fileName);
 }
