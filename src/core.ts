@@ -90,8 +90,8 @@ export async function xlWriteBooks(books: IBook[], fileName: string, opts?: Pick
   const c = new SamplingCounter(opts?.sampling);
   for (let i = 0; i < books.length; i++) {
     const book = books[i];
-    console.log(`processing book:`, book);
-    if (!book.isbn) console.log(`book [${i}] without isbn:`, book);
+    // console.log(`processing book:`, book);
+    // if (!book.isbn) console.log(`book [${i}] without isbn:`, book);
 
     const row = xlSheet.getRow(i + 1);
 
