@@ -1,15 +1,34 @@
-import * as fs from "fs";
-import { jsonOutputPath, xlOutputPath } from "./common";
-import { xlWriteBooks } from "./transforms";
-import { crawlDangdangSite } from "./dangdang/dangdang";
+import { crawlerProgram } from "./cmd-args";
+import { IAppArgs, Sites } from "./core";
+import { execute as dangdangExecute } from "./dangdang/dangdang";
+import { execute as doubanExecute } from "./douban/douban";
 
-async function crawl() {
-  // const books = await crawlDoubanSite();
-  const books = await crawlDangdangSite();
-  const json = JSON.stringify(books);
-  fs.writeFileSync(jsonOutputPath, json, { encoding: "utf-8" });
-
-  await xlWriteBooks(books, xlOutputPath);
+async function main() {
+  const program = crawlerProgram(async (args) => {
+    await execute(args);
+  });
+  await program.parseAsync(process.argv);
 }
 
-crawl().catch((err) => console.log(err));
+async function execute(appArgs: IAppArgs) {
+  const { site } = appArgs;
+  console.log(`Processing ${site}:`, appArgs);
+
+  switch (site) {
+    case Sites.douban:
+      await doubanExecute(appArgs);
+      break;
+    case Sites.dangdang:
+      await dangdangExecute(appArgs);
+      break;
+    case Sites.fake:
+      // nothing to do
+      break;
+    default:
+      throw new Error(`Unknown site [${site}].`);
+  }
+}
+
+main().catch((err) => {
+  console.log(err);
+});

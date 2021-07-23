@@ -1,92 +1,71 @@
-import { DEFAULT_HTTP_HEADERS, fetchUrl, loadFile } from "../../utils";
-import { DangdangConfig, parseListHtml, parseBookHtml } from "../dangdang";
 import axios from "axios";
+import fs from "fs";
 import iconv from "iconv-lite";
+import path from "path";
+import { DEFAULT_HTTP_HEADERS, loadFile } from "../../utils";
+import { parseBookPage, parseListPage } from "../dangdang";
 
 describe("dangdang", () => {
-  it("http get", async () => {
-    const res = await fetchUrl(`${DangdangConfig.siteUrl}/${DangdangConfig.categories[0].href}`);
-    expect(res.status).toBe(200);
-    // expect(res.data.)
-  });
+  describe("list pages", () => {
+    const url = "http://category.dangdang.com/cp01.38.07.00.00.00.html";
 
-  describe("book page encoding", () => {
-    describe("GBK", () => {
-      const url = "http://product.dangdang.com/27931896.html";
-      it("fetch without convert", async () => {
-        const res = await fetchUrl(url);
-        console.log(res.data);
-      });
-      it("fetch with convert", async () => {
-        const ax = axios.create({ headers: DEFAULT_HTTP_HEADERS });
-        const res = await ax.get(url, { responseType: "arraybuffer" });
-        expect(res.headers["content-type"].includes("charset=GBK")).toBe(true);
-
-        const data = iconv.decode(res.data, "gbk");
-        console.log(data);
-      });
+    it("is encoded in gb2312", async () => {
+      const ax = axios.create({ headers: DEFAULT_HTTP_HEADERS });
+      const res = await ax.get(url, { responseType: "arraybuffer" });
+      expect(res.headers["content-type"].includes("charset=gb2312")).toBe(true);
     });
-    describe("gb2312", () => {
-      const url = "http://category.dangdang.com/cp01.38.07.00.00.00.html";
-      it("fetch without convert", async () => {
-        const res = await fetchUrl(url);
-        console.log(res.data);
-      });
-      it("fetch with convert", async () => {
-        const ax = axios.create({ headers: DEFAULT_HTTP_HEADERS });
-        const res = await ax.get(url, { responseType: "arraybuffer" });
-        expect(res.headers["content-type"].includes("charset=2312")).toBe(true);
 
-        const data = iconv.decode(res.data, "gb2321");
-        console.log(data);
-      });
+    it("parseListPage", () => {
+      const html = loadFile(__dirname, "./example-pages/list-first.html");
+
+      const { bookUrls, nextUrl } = parseListPage(html);
+      expect(Array.isArray(bookUrls)).toBe(true);
+      expect(bookUrls.length).toBe(60);
+
+      const firstBookUrl = bookUrls[0];
+      expect(firstBookUrl).toBe("http://product.dangdang.com/28970991.html");
+
+      expect(nextUrl).toBe(encodeURI("http://category.dangdang.com/pg2-cp01.38.07.00.00.00.html"));
     });
   });
+  describe("book pages", () => {
+    const url = "http://product.dangdang.com/27931896.html";
 
-  it("list-first", () => {
-    const html = loadFile(__dirname, "./example-pages/list-first.html");
+    it("is encoded in GBK", async () => {
+      const ax = axios.create({ headers: DEFAULT_HTTP_HEADERS });
+      const res = await ax.get(url, { responseType: "arraybuffer" });
+      expect(res.headers["content-type"].includes("charset=GBK")).toBe(true);
+    });
 
-    const { bookUrls, nextListUrl } = parseListHtml(html);
-    expect(Array.isArray(bookUrls)).toBe(true);
-    expect(bookUrls.length).toBe(60);
+    it("parse ISBN", () => {
+      const reg = /\d{9,}/g;
 
-    const firstBookUrl = bookUrls[0];
-    expect(firstBookUrl).toBe("http://product.dangdang.com/28970991.html");
+      validate("国际标准书号ISBN：9787502571832所属分类：图书>传记>女性人物", "9787502571832");
+      validate("\n 国际标准书\n 号ISBN：9787502571832所属分类：图书>传记>女性\r\n人物\n", "9787502571832");
 
-    expect(nextListUrl).toBe(encodeURI("http://category.dangdang.com/pg2-cp01.38.07.00.00.00.html"));
-  });
-
-  describe("ISBN", () => {
-    const reg = /\d{9,}/g;
-
-    it("isbn-1", () => {
-      const text = "国际标准书号ISBN：9787502571832所属分类：图书>传记>女性人物";
-
-      const regResult = reg.exec(text);
-      expect(regResult).toBeTruthy();
-
-      if (regResult) {
-        expect(regResult[0]).toBe("9787502571832");
+      function validate(text: string, expectedISBN: string) {
+        const matched = text.match(reg);
+        expect(matched).toBeTruthy();
+        if (matched) {
+          expect(matched.length > 0).toBe(true);
+          expect(matched[0]).toBe(expectedISBN);
+        }
       }
     });
-    it("isbn-2", () => {
-      const text =
-        "\n  开 本：16开纸 张：轻型纸包 装：精装是否套装：否国际标准书号ISBN：9787535491725丛书名：一世珍藏名人名传精品典藏所属分类：图书>传记>科学家>数理科学 ";
 
-      const match = text.match(reg);
-      // console.log(match);
-      expect(Array.isArray(match)).toBe(true);
-      if (match) expect(match[0]).toBe("9787535491725");
+    it("parseBookPage book-1585787597.html", () => {
+      const html = loadGbkAsUtf8(path.join(__dirname, "./example-pages/book-1585787597.html"));
+
+      const { title, isbn, rating } = parseBookPage(html);
+      console.log(title, isbn, rating);
+
+      expect(title.startsWith("林徽因传")).toBe(true);
+      expect(isbn).toBe("9787502571832");
     });
   });
-
-  it("book-30877190", () => {
-    const html = loadFile(__dirname, "./example-pages/book-1585787597.html");
-
-    const { title, isbn, rating } = parseBookHtml(html);
-    console.log(title, isbn, rating);
-
-    expect(title.startsWith("林徽因传")).toBe(true);
-    expect(isbn).toBe("9787502571832");
-  });
 });
+
+function loadGbkAsUtf8(f: string) {
+  const buf: Buffer = fs.readFileSync(f);
+  return iconv.decode(buf, "gbk");
+}

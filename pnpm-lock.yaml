@@ -5,12 +5,15 @@ specifiers:
   '@swc/core': ^1.2.65
   '@swc/helpers': ^0.2.12
   '@swc/jest': ^0.1.4
+  '@types/charset': ^1.0.2
   '@types/jest': ^26.0.24
   '@types/jsdom': ^16.2.13
   '@types/node': ^16.3.3
   '@types/shelljs': ^0.8.9
   axios: ^0.21.1
+  charset: ^1.0.1
   cheerio: ^1.0.0-rc.10
+  commander: ^8.0.0
   eslint: ^7.31.0
   eslint-plugin-import: ^2.23.4
   exceljs: ^4.2.1
@@ -25,8 +28,11 @@ specifiers:
   typescript: ^4.3.5
 
 dependencies:
+  '@types/charset': registry.nlark.com/@types/charset/1.0.2
   axios: 0.21.1
+  charset: registry.nlark.com/charset/1.0.1
   cheerio: registry.nlark.com/cheerio/1.0.0-rc.10
+  commander: registry.nlark.com/commander/8.0.0
   exceljs: registry.nlark.com/exceljs/4.2.1
   iconv-lite: registry.nlark.com/iconv-lite/0.6.3
   jsdom: registry.nlark.com/jsdom/16.6.0
@@ -2886,6 +2892,14 @@ packages:
       '@babel/types': registry.nlark.com/@babel/types/7.14.5
     dev: true
 
+  registry.nlark.com/@types/charset/1.0.2:
+    resolution: {integrity: sha1-tMapQfyLrgPbVrwJsvyCuyaTjjc=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/@types/charset/download/@types/charset-1.0.2.tgz}
+    name: '@types/charset'
+    version: 1.0.2
+    dependencies:
+      '@types/node': registry.nlark.com/@types/node/16.4.1
+    dev: false
+
   registry.nlark.com/@types/glob/7.1.4:
     resolution: {integrity: sha1-6lniHS7lxReRTLS8jkFTuZ5WZnI=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/@types/glob/download/@types/glob-7.1.4.tgz}
     name: '@types/glob'
@@ -2961,6 +2975,12 @@ packages:
     name: '@types/node'
     version: 16.3.3
     dev: true
+
+  registry.nlark.com/@types/node/16.4.1:
+    resolution: {integrity: sha1-n60XGltwFhPuim9OzjyIsQNLGwM=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/@types/node/download/@types/node-16.4.1.tgz}
+    name: '@types/node'
+    version: 16.4.1
+    dev: false
 
   registry.nlark.com/@types/parse5/6.0.1:
     resolution: {integrity: sha1-+K5PvNK5uk/5NGmOKHeJYfnLIso=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/@types/parse5/download/@types/parse5-6.0.1.tgz}
@@ -3248,6 +3268,13 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
+  registry.nlark.com/charset/1.0.1:
+    resolution: {integrity: sha1-jVlUbDVb5hBJqPqRZHR3kzGYUr0=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/charset/download/charset-1.0.1.tgz}
+    name: charset
+    version: 1.0.1
+    engines: {node: '>=4.0.0'}
+    dev: false
+
   registry.nlark.com/cheerio-select/1.5.0:
     resolution: {integrity: sha1-+vPa6zGxfF4anavO4oiq+Kr6WCM=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/cheerio-select/download/cheerio-select-1.5.0.tgz}
     name: cheerio-select
@@ -3293,6 +3320,13 @@ packages:
     version: 7.2.0
     engines: {node: '>= 10'}
     dev: true
+
+  registry.nlark.com/commander/8.0.0:
+    resolution: {integrity: sha1-HaITlUjK71m9I+ZtGJCN+1SwIlg=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/commander/download/commander-8.0.0.tgz?cache=0&sync_timestamp=1624613741385&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fcommander%2Fdownload%2Fcommander-8.0.0.tgz}
+    name: commander
+    version: 8.0.0
+    engines: {node: '>= 12'}
+    dev: false
 
   registry.nlark.com/compress-commons/4.1.1:
     resolution: {integrity: sha1-3yoJp+0XRHZCutEKhcyaGeXEKn0=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/compress-commons/download/compress-commons-4.1.1.tgz}
