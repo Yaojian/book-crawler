@@ -30,32 +30,34 @@ node dist/index.js <网站> <子命令> [参数]
     * `-xf [xlsxFile]` 或 `--xlsx-file [xlsxFile]`    Excel 格式的书籍信息文件. (default: "books.xlsx")
   * `-s` 或 `--sampling <limit>`, 设定采样数量. 该参数主要用于调试, 每个步骤仅处理最多 `limit` 个数据.  
     
+:bulb: 分步执行动作可以降低网络故障带来的时间损失
+
 ### 样例
 
+采用默认参数爬取豆瓣网:
 ```
   node dist/index.js douban run
 ```
-采用默认参数爬取豆瓣网.
 
+对当当网以采样方式运行整个过程:
 ```
   node dist/index.js dangdang run -s 2
 ```
-对当当网以采样方式运行整个过程.
 
+爬取 douban 的书籍列表页, 并将结果保存在 `douban-urls.json`:
 ```
   node dist/index.js douban urls --urls-file douban-urls.json
 ```
-爬取 douban 的书籍列表页, 并将结果保存在 `douban-urls.json`.
 
+从 `douban-urls.json` 中加载书籍详情页的链接，爬取书籍详情页，并将书籍详情保存在 `douban-books.json` 中:
 ```
   node dist/index.js douban books --urls-file douban-urls.json --books-file douban-books.json
 ```
-从 `douban-urls.json` 中加载书籍详情页的链接，爬取书籍详情页，并将书籍详情保存在 `douban-books.json` 中.
 
+从 `douban-books.json` 中加载书籍信息, 生成 excel 格式的 `douban-books.xlsx`:
 ```
   node dist/index.js douban xlsx --books-file douban-books.json --xlsx-file douban-books.xlsx
 ```
-从 `douban-books.json` 中加载书籍信息, 生成 excel 格式的 `douban-books.xlsx`.
 
 ## 实现
 
