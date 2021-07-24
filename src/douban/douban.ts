@@ -1,6 +1,6 @@
 import cheerio from "cheerio";
 import { executeCore, IBook, IBookInfo, IExecutionCallbacks, IListPage, ISiteOpts, IUrl } from "../core";
-import { fetchUrl, SamplingCounter } from "../utils";
+import { fetchUrl, quota } from "../utils";
 import { configs } from "./configs";
 
 export async function execute(opts: ISiteOpts): Promise<void> {
@@ -12,7 +12,7 @@ export async function execute(opts: ISiteOpts): Promise<void> {
 async function crawlUrls(opts?: Pick<ISiteOpts, "sampling">): Promise<IUrl[]> {
   const allBookUrls: string[] = [];
 
-  const c = new SamplingCounter(opts?.sampling);
+  const reachQuota = quota(opts?.sampling);
   let listUrl: string = configs.firstListUrl;
   while (listUrl) {
     console.log(`processing list: ${listUrl}`);
@@ -25,7 +25,7 @@ async function crawlUrls(opts?: Pick<ISiteOpts, "sampling">): Promise<IUrl[]> {
     if (!nextUrl || nextUrl === listUrl) break;
     listUrl = nextUrl;
 
-    if (c.enough()) break;
+    if (reachQuota()) break;
   }
 
   return allBookUrls.map((url) => ({ url }));
@@ -53,8 +53,8 @@ export function parseListPage(html: string): IListPage {
 
 export async function crawlBooks(bookUrls: IUrl[], opts?: Pick<ISiteOpts, "sampling">): Promise<IBook[]> {
   const books: IBook[] = [];
-  const c = new SamplingCounter(opts?.sampling);
 
+  const reachQuota = quota(opts?.sampling);
   for (let i = 0; i < bookUrls.length; i++) {
     const url = bookUrls[i].url;
     try {
@@ -67,7 +67,7 @@ export async function crawlBooks(bookUrls: IUrl[], opts?: Pick<ISiteOpts, "sampl
     } catch (e) {
       console.log(e);
     }
-    if (c.enough()) break;
+    if (reachQuota()) break;
   }
 
   return books;

@@ -1,6 +1,6 @@
 import * as xl from "exceljs";
 import fs from "fs";
-import { SamplingCounter } from "./utils";
+import { quota } from "./utils";
 
 export const Sites = Object.freeze({
   douban: "douban" as const,
@@ -13,9 +13,9 @@ export type Site = SiteTypes[keyof SiteTypes];
 
 /** 针对特定目标站点的选项. */
 export interface ISiteOpts {
-  runUrls?: boolean;
-  runBooks?: boolean;
-  runXlsx?: boolean;
+  crawlUrls?: boolean;
+  crawlBooks?: boolean;
+  writeXlsx?: boolean;
   urlsFile: string;
   booksFile: string;
   xlsxFile: string;
@@ -33,7 +33,7 @@ export interface IUrl {
   info?: string;
 }
 
-/** 代表一个列表页的内容。 */
+/** 代表一个列表页的内容. */
 export interface IListPage {
   /** 该列表页包含的书籍的详情页链接 */
   bookUrls: string[];
@@ -41,6 +41,7 @@ export interface IListPage {
   nextUrl: string | undefined;
 }
 
+/** 代表书籍详情页的书籍信息. */
 export interface IBookInfo {
   isbn: string;
   title: string;
@@ -49,6 +50,7 @@ export interface IBookInfo {
   category?: string;
 }
 
+/** 书籍信息. */
 export interface IBook extends IBookInfo {
   url: string;
 }
@@ -83,11 +85,12 @@ export function loadBooks(booksFile: string): IBook[] {
   return json;
 }
 
+/** 生成书籍信息的 excel 文件. */
 export async function xlWriteBooks(books: IBook[], fileName: string, opts?: Pick<ISiteOpts, "sampling">) {
   const xlWorkbook = new xl.Workbook();
   const xlSheet = xlWorkbook.addWorksheet("books");
 
-  const c = new SamplingCounter(opts?.sampling);
+  const reachQuota = quota(opts?.sampling);
   for (let i = 0; i < books.length; i++) {
     const book = books[i];
     // console.log(`processing book:`, book);
@@ -104,9 +107,8 @@ export async function xlWriteBooks(books: IBook[], fileName: string, opts?: Pick
 
     row.commit();
 
-    if (c.enough()) break;
+    if (reachQuota()) break;
   }
-  // xlSheet.commit();
 
   await xlWorkbook.xlsx.writeFile(fileName);
 }
@@ -117,20 +119,23 @@ export interface IExecutionCallbacks {
 }
 
 export async function executeCore(callbacks: IExecutionCallbacks, opts: ISiteOpts): Promise<void> {
+  // 爬取或从文件中加载 书籍链接
   let urls: IUrl[] | undefined = undefined;
-  if (opts.runUrls) {
+  if (opts.crawlUrls) {
     urls = await callbacks.crawlUrls(opts);
     fs.writeFileSync(opts.urlsFile, JSON.stringify(urls), { encoding: "utf-8" });
   }
 
+  // 爬取或从文件中加载 书籍信息
   let books: IBook[] | undefined = undefined;
-  if (opts.runBooks) {
+  if (opts.crawlBooks) {
     if (urls === undefined) urls = loadUrls(opts.urlsFile);
     books = await callbacks.crawlBooks(urls, opts);
     fs.writeFileSync(opts.booksFile, JSON.stringify(books), { encoding: "utf-8" });
   }
 
-  if (opts.runXlsx) {
+  // 输出 xlsx
+  if (opts.writeXlsx) {
     if (books === undefined) books = loadBooks(opts.booksFile);
     await xlWriteBooks(books, opts.xlsxFile, opts);
   }

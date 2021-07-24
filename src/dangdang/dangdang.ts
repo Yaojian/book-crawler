@@ -1,6 +1,6 @@
 import cheerio from "cheerio";
 import { executeCore, IBook, IBookInfo, IExecutionCallbacks, IListPage, ISiteOpts, IUrl } from "../core";
-import { fetchUrl, removeSpaces, SamplingCounter } from "../utils";
+import { fetchUrl, quota, removeSpaces } from "../utils";
 import { configs, ICategory } from "./configs";
 
 export async function execute(opts: ISiteOpts): Promise<void> {
@@ -10,13 +10,13 @@ export async function execute(opts: ISiteOpts): Promise<void> {
 
 async function crawlUrls(opts?: Pick<ISiteOpts, "sampling">): Promise<IUrl[]> {
   const result: IUrl[] = [];
-  const c = new SamplingCounter(opts?.sampling);
+  const reachQuota = quota(opts?.sampling);
   // 针对每个类别，得到该类别的所有书籍链接（包括首个列表页及后续列表页）
   for (let i = 0; i < configs.categories.length; i++) {
     const urls = await crawlCategoryUrls(configs.categories[i], opts);
     result.push(...urls);
 
-    if (c.enough()) break;
+    if (reachQuota()) break;
   }
 
   return result;
@@ -26,7 +26,7 @@ export async function crawlCategoryUrls(category: ICategory, opts?: Pick<ISiteOp
   console.log(`processing category: ${category.name}`);
   const allBookUrls: string[] = [];
 
-  const c = new SamplingCounter(opts?.sampling);
+  const reachQuota = quota(opts?.sampling);
   let listUrl = categoryFirstUrl(category);
   while (listUrl) {
     console.log(`processing category ${category.name} url: ${listUrl}`);
@@ -38,7 +38,7 @@ export async function crawlCategoryUrls(category: ICategory, opts?: Pick<ISiteOp
     if (!nextUrl || nextUrl === listUrl) break;
     listUrl = nextUrl;
 
-    if (c.enough()) break;
+    if (reachQuota()) break;
   }
 
   // associate category to each bookUrl
@@ -78,7 +78,7 @@ function categoryFirstUrl(category: ICategory): string {
 async function crawlBooks(categorisedUrls: IUrl[], opts?: Pick<ISiteOpts, "sampling">): Promise<IBook[]> {
   const result: IBook[] = [];
 
-  const c = new SamplingCounter(opts?.sampling);
+  const reachQuota = quota(opts?.sampling);
   for (let i = 0; i < categorisedUrls.length; i++) {
     const { url, info } = categorisedUrls[i];
     console.log(`processing book (${i}/${categorisedUrls.length}): ${url}`);
@@ -90,7 +90,7 @@ async function crawlBooks(categorisedUrls: IUrl[], opts?: Pick<ISiteOpts, "sampl
       console.log(`Error in process book: ${url}`, e);
     }
 
-    if (c.enough()) break;
+    if (reachQuota()) break;
   }
 
   return result;

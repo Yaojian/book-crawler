@@ -15,19 +15,20 @@ type ProgramExecutor = (args: IAppArgs) => Promise<void>;
   book-crawler douban xlsx --books-file douban-books.json --xlsx-file douban-books.xlsx
   book-crawler douban run --urls-file douban-urls.json --books-file douban-books.json --xlsx-file douban-books.xlsx
 
-  book-crawler urls dangdang --urls-file dangdang-urls.json
-  book-crawler books dangdang --urls-file dangdang-book-urls.json --books-file dangdang-books.json
-  book-crawler xlsx dangdang --books-file dangdang-books.json --xlsx-file dangdang-books.xlsx
-  book-crawler run dangdang --urls-file dangdang-urls.json --books-file dangdang-books.json --xlsx-file dangdang-books.xlsx
+  book-crawler dangdang urls --urls-file dangdang-urls.json
+  book-crawler dangdang books --urls-file dangdang-book-urls.json --books-file dangdang-books.json
+  book-crawler dangdang xlsx --books-file dangdang-books.json --xlsx-file dangdang-books.xlsx
+  book-crawler dangdang run --urls-file dangdang-urls.json --books-file dangdang-books.json --xlsx-file dangdang-books.xlsx
 */
 export function crawlerProgram(executor?: ProgramExecutor): Command {
-  const urlsOption = new Option("-uf, --urls-file [urlsFile]", "json 格式的书籍链接文件.").default("book-urls.json");
-  const booksOption = new Option("-bf, --books-file [booksFile]", "json 格式的书籍信息文件.").default("books.json");
-  const xlsxOption = new Option("-xf, --xlsx-file [xlsxFile]", "Excel 格式的书籍信息文件.").default("books.xlsx");
-  const samplingOption = new Option(
-    "-s, --sampling <sampling>",
-    "设定采样数量，通常用于测试, 0 表示无限制."
-  ).argParser<number>((value) => parseInt(value));
+  const urlsFileOption = new Option("-uf, --urls-file [urlsFile]", "json 格式的书籍链接文件.").default(
+    "book-urls.json"
+  );
+  const booksFileOption = new Option("-bf, --books-file [booksFile]", "json 格式的书籍信息文件.").default("books.json");
+  const xlsxFileOption = new Option("-xf, --xlsx-file [xlsxFile]", "Excel 格式的书籍信息文件.").default("books.xlsx");
+  const samplingOption = new Option("-s, --sampling <sampling>", "设定采样数量，通常用于测试.").argParser<number>(
+    (value) => parseInt(value)
+  );
 
   const program = new Command().version("0.0.1").description("书籍信息爬虫.");
 
@@ -42,42 +43,48 @@ export function crawlerProgram(executor?: ProgramExecutor): Command {
 
   return program;
 
+  /** Add common sub commands for a site command. */
   function addCommonSubCommands(siteCmd: Command, site: Site) {
+    /** merges the options from ancestor command's opts(). */
+    function mergeOpts(actionOpts: Partial<IAppArgs>, customOpts?: Partial<IAppArgs>): IAppArgs {
+      const programOpts = program.opts();
+      const siteOpts = siteCmd.opts<IAppArgs>();
+      return { ...programOpts, ...siteOpts, ...actionOpts, ...customOpts, site };
+      // console.log(`programOpts:`, programOpts, `siteOpts:`, siteOpts, "actionOpts:", actionOpts, `opts:`, opts);
+    }
+
+    siteCmd.addOption(samplingOption);
     const urlsCmd = siteCmd
       .command("urls")
       .description("获取 json 格式的书籍详情页地址.")
-      .addOption(urlsOption)
-      .addOption(samplingOption)
+      .addOption(urlsFileOption)
       .action(async (opts) => {
-        if (executor) await executor({ site, ...opts, runUrls: true });
+        if (executor) await executor(mergeOpts(opts, { crawlUrls: true }));
       });
     const booksCmd = siteCmd
       .command("books")
       .description("获取 json 格式的书籍信息.")
-      .addOption(urlsOption)
-      .addOption(booksOption)
-      .addOption(samplingOption)
+      .addOption(urlsFileOption)
+      .addOption(booksFileOption)
       .action(async (opts) => {
-        if (executor) await executor({ site, ...opts, runBooks: true });
+        if (executor) await executor(mergeOpts(opts, { crawlBooks: true }));
       });
     const xlsxCmd = siteCmd
       .command("xlsx")
       .description("将 json 格式的书籍信息转换为 Excel 格式.")
-      .addOption(booksOption)
-      .addOption(xlsxOption)
-      .addOption(samplingOption)
+      .addOption(booksFileOption)
+      .addOption(xlsxFileOption)
       .action(async (opts) => {
-        if (executor) await executor({ site, ...opts, runXlsx: true });
+        if (executor) await executor(mergeOpts(opts, { writeXlsx: true }));
       });
     const runCmd = siteCmd
       .command("run")
       .description("依次执行命令 list, books, xlsx.")
-      .addOption(urlsOption)
-      .addOption(booksOption)
-      .addOption(xlsxOption)
-      .addOption(samplingOption)
+      .addOption(urlsFileOption)
+      .addOption(booksFileOption)
+      .addOption(xlsxFileOption)
       .action(async (opts) => {
-        if (executor) await executor({ site, ...opts, runUrls: true, runBooks: true, runXlsx: true });
+        if (executor) await executor(mergeOpts(opts, { crawlUrls: true, crawlBooks: true, writeXlsx: true }));
       });
     return { urlsCmd, booksCmd, xlsxCmd, runCmd };
   }

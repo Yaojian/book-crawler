@@ -48,17 +48,15 @@ export async function fetchUrl(url: string) {
   return res;
 }
 
-/** 用于采样计数. */
-export class SamplingCounter {
-  constructor(private readonly limit?: number) {}
-
-  private count: number = 0;
-
-  public enough() {
-    if (this.limit !== undefined && this.limit > 0) {
-      this.count++;
-      if (this.count >= this.limit) return true;
-    }
-    return false;
+const quotaDisabled = () => false;
+/**
+ * 定义一个用于限制循环次数的计次器。
+ * @returns ()=>boolean 对该函数的每次调用将会增加计次，当计次小于或等于上限时返回 false, 否则返回 true.
+ * */
+export function quota(max?: number): () => boolean {
+  if (max !== undefined) {
+    let count: number = 0;
+    return () => ++count >= max;
   }
+  return quotaDisabled;
 }
