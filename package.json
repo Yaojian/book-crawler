@@ -51,10 +51,19 @@
     "eslint-plugin-import": "^2.23.4",
     "jest": "^27.0.6",
     "npm-run-all": "^4.1.5",
+    "pkg": "^5.3.1",
     "prettier": "^2.3.2",
     "shelljs": "^0.8.4",
     "shx": "^0.3.3",
     "ts-jest": "^27.0.3",
     "typescript": "^4.3.5"
+  },
+  "bin": "dist/index.js",
+  "pkg": {
+    "scripts": "dist/**/*.js",
+    "targets": [
+      "node14-win-x64"
+    ],
+    "outputPath": "bin"
   }
 }
